@@ -2,7 +2,7 @@
 
 #include "mcc_generated_files/mcc.h"
 
-// registers:
+// registers
 
 // read
 #define REG_DEV_ID 0x01
@@ -15,67 +15,96 @@
 #define REG_KICK_A    0x13
 #define REG_KICK_B    0x14
 
-// read:
+struct registers_t g_registers = 
+{
+    .dev_id = 0x54
+};
 
+static struct
+{
+    // internal data
+    uint8_t reg_id;
+    uint8_t counter;
 
-// write:
-bool reg_charge = 0;
-bool reg_discharge = 0;
-uint8_t reg_kick_a = 0;
-uint8_t reg_kick_b = 0;
+    uint8_t read_address;
+} g_internal = {};
 
-// internal data
-uint8_t reg_id = 0;
-uint8_t counter = 0;
-
-uint8_t read_address = 0;
-
-static void I2CReadCallback() {
+static void i2c_read_callback()
+{
     uint8_t read_data = I2C1_Read();
     
-    if (counter == 0) {
+    if (g_internal.counter == 0)
+    {
         // first byte is register address
-        reg_id = read_data;
+        // for both read and write registers
+        g_internal.reg_id = read_data;
     }
-    else {
-        uint8_t array_idx = counter - 1;
+    else
+    {
+        uint8_t array_idx = g_internal.counter - 1;
         
-        if (reg_id == REG_CHARGE) {
-            reg_charge = read_data;
+        if (g_internal.reg_id == REG_CHARGE)
+        {
+            g_registers.charge = read_data;
         }
-        else if (reg_id == REG_DISCHARGE) {
-            reg_discharge = read_data;
+        else if (g_internal.reg_id == REG_DISCHARGE)
+        {
+            g_registers.discharge = read_data;
         }
-        else if (reg_id == REG_KICK_A) {
-            reg_kick_a = read_data;
+        else if (g_internal.reg_id == REG_KICK_A)
+        {
+            g_registers.kick_a = read_data;
         }
-        else if (reg_id == REG_KICK_B) {
-            reg_kick_b = read_data;
+        else if (g_internal.reg_id == REG_KICK_B)
+        {
+            g_registers.kick_b = read_data;
         }
     }
     
-    counter++;
+    g_internal.counter++;
 }
 
-static void I2CWriteCallback() {
-    I2C1_Write(counter++);
+static void i2c_write_callback()
+{
+    uint8_t array_idx = g_internal.counter;
+    uint8_t write_data = 0;
+        
+    if (g_internal.reg_id == REG_DEV_ID)
+    {
+        write_data = g_registers.dev_id;
+    }
+    else if (g_internal.reg_id == REG_STATUS)
+    {
+        write_data = g_registers.status;
+    }
+    else if (g_internal.reg_id == REG_V_OUT)
+    {
+        write_data = g_registers.v_out[array_idx];
+    }
+    
+    I2C1_Write(write_data);
+    g_internal.counter++;
 }
 
-static void I2CAddressCallback() {
-    read_address = I2C1_Read() >> 1;
-    counter = 0;
+static void i2c_address_callback()
+{
+    g_internal.read_address = I2C1_Read() >> 1;
+    g_internal.counter = 0;
 }
 
-static void I2CWriteCollisionCallback() {
+static void i2c_write_collision_callback()
+{
 }
 
-static void I2CBusCollisionCallback() {
+static void i2c_bus_collision_callback()
+{
 }
 
-void I2CSetCallbacks() {
-    I2C1_SlaveSetReadIntHandler(I2CReadCallback);
-    I2C1_SlaveSetWriteIntHandler(I2CWriteCallback);
-    I2C1_SlaveSetAddrIntHandler(I2CAddressCallback);
-    I2C1_SlaveSetWrColIntHandler(I2CWriteCollisionCallback);
-    I2C1_SlaveSetBusColIntHandler(I2CBusCollisionCallback);
+void set_i2c_callbacks()
+{
+    I2C1_SlaveSetReadIntHandler(i2c_read_callback);
+    I2C1_SlaveSetWriteIntHandler(i2c_write_callback);
+    I2C1_SlaveSetAddrIntHandler(i2c_address_callback);
+    I2C1_SlaveSetWrColIntHandler(i2c_write_collision_callback);
+    I2C1_SlaveSetBusColIntHandler(i2c_bus_collision_callback);
 }

@@ -7,17 +7,27 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
+
+struct registers_t
+{
+    // read
+    uint8_t dev_id;
+    uint8_t status;
+    uint8_t v_out[2];
+
+    // write
+    bool    charge;
+    bool    discharge;
+    uint8_t kick_a;
+    uint8_t kick_b;
+};
+
+extern struct registers_t g_registers;
     
-extern bool reg_charge;
-extern bool reg_discharge;
-extern uint8_t reg_kick_a;
-extern uint8_t reg_kick_b;
-    
-void I2CSetCallbacks();
+void set_i2c_callbacks();
 
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* I2C_CALLBACKS_H */
-

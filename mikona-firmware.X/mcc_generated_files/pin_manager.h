@@ -217,6 +217,26 @@
 #define VOut_SetAnalogMode()      do { ANSELCbits.ANSC4 = 1; } while(0)
 #define VOut_SetDigitalMode()     do { ANSELCbits.ANSC4 = 0; } while(0)
 
+// get/set Discharge aliases
+#define Discharge_TRIS                 TRISCbits.TRISC5
+#define Discharge_LAT                  LATCbits.LATC5
+#define Discharge_PORT                 PORTCbits.RC5
+#define Discharge_WPU                  WPUCbits.WPUC5
+#define Discharge_OD                   ODCONCbits.ODCC5
+#define Discharge_ANS                  ANSELCbits.ANSC5
+#define Discharge_SetHigh()            do { LATCbits.LATC5 = 1; } while(0)
+#define Discharge_SetLow()             do { LATCbits.LATC5 = 0; } while(0)
+#define Discharge_Toggle()             do { LATCbits.LATC5 = ~LATCbits.LATC5; } while(0)
+#define Discharge_GetValue()           PORTCbits.RC5
+#define Discharge_SetDigitalInput()    do { TRISCbits.TRISC5 = 1; } while(0)
+#define Discharge_SetDigitalOutput()   do { TRISCbits.TRISC5 = 0; } while(0)
+#define Discharge_SetPullup()          do { WPUCbits.WPUC5 = 1; } while(0)
+#define Discharge_ResetPullup()        do { WPUCbits.WPUC5 = 0; } while(0)
+#define Discharge_SetPushPull()        do { ODCONCbits.ODCC5 = 0; } while(0)
+#define Discharge_SetOpenDrain()       do { ODCONCbits.ODCC5 = 1; } while(0)
+#define Discharge_SetAnalogMode()      do { ANSELCbits.ANSC5 = 1; } while(0)
+#define Discharge_SetDigitalMode()     do { ANSELCbits.ANSC5 = 0; } while(0)
+
 /**
    @Param
     none

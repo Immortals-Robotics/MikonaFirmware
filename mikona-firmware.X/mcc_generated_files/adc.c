@@ -68,11 +68,11 @@ void ADC_Initialize(void)
 {
     // set the ADC to the options selected in the User Interface
     
-    // ADFM left; ADPREF VDD; ADCS FOSC/4; 
-    ADCON1 = 0x40;
+    // ADFM right; ADPREF FVR; ADCS Frc; 
+    ADCON1 = 0xF3;
     
-    // ADACT disabled; 
-    ADACT = 0x00;
+    // ADACT TMR2; 
+    ADACT = 0x04;
     
     // ADRESL 0; 
     ADRESL = 0x00;
@@ -83,6 +83,11 @@ void ADC_Initialize(void)
     // GO_nDONE stop; ADON enabled; CHS ANA0; 
     ADCON0 = 0x01;
     
+    // Enabling ADC interrupt.
+    PIE1bits.ADIE = 1;
+	
+	// Set Default Interrupt Handler
+    ADC_SetInterruptHandler(ADC_DefaultInterruptHandler);
 }
 
 void ADC_SelectChannel(adc_channel_t channel)
@@ -138,6 +143,26 @@ adc_result_t ADC_GetConversion(adc_channel_t channel)
 void ADC_TemperatureAcquisitionDelay(void)
 {
     __delay_us(200);
+}
+
+void ADC_ISR(void)
+{
+    // Clear the ADC interrupt flag
+    PIR1bits.ADIF = 0;
+	
+	if(ADC_InterruptHandler)
+    {
+        ADC_InterruptHandler();
+    }
+}
+
+void ADC_SetInterruptHandler(void (* InterruptHandler)(void)){
+    ADC_InterruptHandler = InterruptHandler;
+}
+
+void ADC_DefaultInterruptHandler(void){
+    // add your ADC interrupt custom code
+    // or set custom function using ADC_SetInterruptHandler()
 }
 /**
  End of File

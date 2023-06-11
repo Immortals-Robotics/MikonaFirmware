@@ -1,26 +1,24 @@
 /**
-  Generated Pin Manager File
+  FVR Generated Driver File
 
-  Company:
+  @Company
     Microchip Technology Inc.
 
-  File Name:
-    pin_manager.c
+  @File Name
+    fvr.c
 
-  Summary:
-    This is the Pin Manager file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+  @Summary
+    This is the generated driver implementation file for the FVR driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
-  Description:
-    This header file provides implementations for pin APIs for all pins selected in the GUI.
+  @Description
+    This source file provides APIs for FVR.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
         Device            :  PIC16F15224
-        Driver Version    :  2.11
+        Driver Version    :  2.01
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.36 and above
         MPLAB             :  MPLAB X 6.00
-
-    Copyright (c) 2013 - 2015 released Microchip Technology Inc.  All rights reserved.
 */
 
 /*
@@ -46,74 +44,28 @@
     SOFTWARE.
 */
 
-#include "pin_manager.h"
+/**
+  Section: Included Files
+*/
 
+#include <xc.h>
+#include "fvr.h"
 
+/**
+  Section: FVR APIs
+*/
 
-
-
-void PIN_MANAGER_Initialize(void)
+void FVR_Initialize(void)
 {
-    /**
-    LATx registers
-    */
-    LATA = 0x00;
-    LATC = 0x00;
-
-    /**
-    TRISx registers
-    */
-    TRISA = 0x1B;
-    TRISC = 0x13;
-
-    /**
-    ANSELx registers
-    */
-    ANSELC = 0x10;
-    ANSELA = 0x03;
-
-    /**
-    WPUx registers
-    */
-    WPUA = 0x10;
-    WPUC = 0x00;
-
-    /**
-    ODx registers
-    */
-    ODCONA = 0x00;
-    ODCONC = 0x00;
-
-    /**
-    SLRCONx registers
-    */
-    SLRCONA = 0x37;
-    SLRCONC = 0x3F;
-
-    /**
-    INLVLx registers
-    */
-    INLVLA = 0x3F;
-    INLVLC = 0x3F;
-
-
-
-
-
-   
-    
-	
-    RC0PPS = 0x07;   //RC0->MSSP1:SCL1;    
-    SSP1CLKPPS = 0x10;   //RC0->MSSP1:SCL1;    
-    RC1PPS = 0x08;   //RC1->MSSP1:SDA1;    
-    RA2PPS = 0x03;   //RA2->PWM3:PWM3OUT;    
-    SSP1DATPPS = 0x11;   //RC1->MSSP1:SDA1;    
-}
-  
-void PIN_MANAGER_IOC(void)
-{   
+    // FVREN enabled; ADFVR 4x; 
+    FVRCON = 0x83;
 }
 
+bool FVR_IsOutputReady(void)
+{
+    return (FVRCONbits.FVRRDY);
+}
 /**
  End of File
 */
+

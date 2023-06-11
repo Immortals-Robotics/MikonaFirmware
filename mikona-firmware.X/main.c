@@ -44,13 +44,11 @@
 #include "mcc_generated_files/mcc.h"
 
 #include "i2c-callbacks.h"
+#include "mikona.h"
 
 /*
                          Main application
  */
-
-uint16_t v_out_raw = 0;
-float v_out = 0.0;
 
 void main(void)
 {
@@ -72,70 +70,44 @@ void main(void)
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
 
+    setup_adc();
+    
     I2C1_Open();
-    I2CSetCallbacks();
+    set_i2c_callbacks();
     
     while (1)
     {
         // Add your application code
+        g_registers.status = is_done();
         
-        v_out_raw = ADC_GetConversion(VOut);
-        v_out = v_out_raw * 0.0050857544f;
-        //v_out = 25.0;
-        
-        if (!Done_GetValue())
+        if (is_done())
         {
-            PWM3_LoadDutyValue(16);
+            set_led_color(LedColorOrange);
         }
         else
         {
-            PWM3_LoadDutyValue(0);
+            set_led_color(LedColorGreen);
         }
         
-        if (reg_charge)
+        charge(g_registers.charge);
+        discharge(g_registers.discharge);
+                
+        if (g_registers.kick_a)
         {
-            Charge_SetHigh();
-        }
-        else
-        {
-            Charge_SetLow();
-        }
-        
-        if (reg_kick_a)
-        {
-            KickA_SetHigh();
-            
-            for(;reg_kick_a > 0; --reg_kick_a)
-                __delay_us(100);
-            
-            KickA_SetLow();
-            reg_kick_a = 0;
+            kick_a(g_registers.kick_a);
+            g_registers.kick_a = 0;
         }
         
-        if (reg_kick_b)
+        if (g_registers.kick_b)
         {
-            KickB_SetHigh();
-            
-            for(;reg_kick_b > 0; --reg_kick_b)
-                __delay_us(100);
-            
-            KickB_SetLow();
-            reg_kick_b = 0;
+            kick_b(g_registers.kick_b);
+            g_registers.kick_b = 0;
         }
-        
-        if (0)//!Button_GetValue())
-        {
-            //Discharge_SetHigh();
-        }
-        else
-        {
-            //Discharge_SetLow();
-        }
-        
     }
     
     I2C1_Close();
 }
+
 /**
  End of File
 */
