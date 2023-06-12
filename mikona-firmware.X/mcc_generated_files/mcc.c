@@ -56,8 +56,10 @@ void SYSTEM_Initialize(void)
     WDT_Initialize();
     FVR_Initialize();
     ADC_Initialize();
+    PWM4_Initialize();
     PWM3_Initialize();
     TMR2_Initialize();
+    TMR0_Initialize();
 }
 
 void OSCILLATOR_Initialize(void)

@@ -82,7 +82,7 @@ void main(void)
         
         if (is_done())
         {
-            set_led_color(LedColorOrange);
+            set_led_color(LedColorRed);
         }
         else
         {

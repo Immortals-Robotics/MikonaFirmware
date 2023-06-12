@@ -7,15 +7,11 @@ void set_led_color(enum led_color_t color)
 {
     if (color == LedColorRed)
     {
-        PWM3_LoadDutyValue(32);
+        LED_SetHigh();
     }
     else if (color == LedColorGreen)
     {
-        PWM3_LoadDutyValue(0);
-    }
-    else if (color == LedColorOrange)
-    {
-        PWM3_LoadDutyValue(8);
+        LED_SetLow();
     }
 }
 
@@ -56,24 +52,30 @@ void discharge(bool enable)
 
 void kick_a(uint8_t duration)
 {
-    // TODO: improve accuracy
-    KickA_SetHigh();
-            
-    for(;duration > 0; --duration)
-        __delay_us(100);
-
-    KickA_SetLow();
+    if (duration == 0)
+        return;
+    
+    RC3_SetDigitalInput();
+    PWM4_LoadDutyValue(0);
+    
+    RC2_SetDigitalOutput();
+    PWM3_LoadDutyValue(duration+2);
+    
+    TMR2_Start();
 }
 
 void kick_b(uint8_t duration)
 {
-    // TODO: improve accuracy
-   KickB_SetHigh();
-            
-    for(;duration > 0; --duration)
-        __delay_us(100);
-
-    KickB_SetLow(); 
+    if (duration == 0)
+        return;
+    
+    RC2_SetDigitalInput();
+    PWM3_LoadDutyValue(0);
+    
+    RC3_SetDigitalOutput();
+    PWM4_LoadDutyValue(duration+2);
+    
+    TMR2_Start();
 }
 
 static void adc_interrupt_handler()

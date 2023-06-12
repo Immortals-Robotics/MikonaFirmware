@@ -1,17 +1,17 @@
  /**
-   PWM3 Generated Driver File
+   PWM4 Generated Driver API Header File
  
    @Company
-     Microchip Technology Inc.
- 
+     Microchip Technology Inc. 
+
    @File Name
-     pwm3.c
- 
+    pwm4.h
+
    @Summary
-     This is the generated driver implementation file for the PWM3 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+     This is the generated header file for the PWM4 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
  
    @Description
-     This source file provides implementations for driver APIs for PWM3.
+     This header file provides APIs for driver for PWM4.
      Generation Information :
          Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
          Device            :  PIC16F15224
@@ -19,9 +19,9 @@
      The generated drivers are tested against the following:
          Compiler          :  XC8 2.36 and above or later
          MPLAB             :  MPLAB X 6.00
- */ 
+ */
 
- /*
+/*
     (c) 2018 Microchip Technology Inc. and its subsidiaries. 
     
     Subject to your compliance with these terms, you may use Microchip software and any 
@@ -43,40 +43,99 @@
     OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS 
     SOFTWARE.
 */
+
+#ifndef PWM4_H
+ #define PWM4_H
  
  /**
    Section: Included Files
  */
 
  #include <xc.h>
- #include "pwm3.h"
+ #include <stdint.h>
+
+ #ifdef __cplusplus  // Provide C++ Compatibility
+
+     extern "C" {
+
+ #endif
+
+ /**
+   Section: Macro Declarations
+ */
+
+ #define PWM4_INITIALIZE_DUTY_VALUE    0
 
  /**
    Section: PWM Module APIs
  */
 
- void PWM3_Initialize(void)
- {
-    // Set the PWM to the options selected in the PIC10 / PIC12 / PIC16 / PIC18 MCUs.
-    // PWM3POL active_hi; PWM3EN enabled; 
-    PWM3CON = 0x80;   
+ /**
+   @Summary
+     Initializes the PWM4
 
-    // DCH 0; 
-    PWM3DCH = 0x00;   
+   @Description
+     This routine initializes the EPWM4_Initialize
+     This routine must be called before any other PWM4 routine is called.
+     This routine should only be called once during system initialization.
 
-    // DCL 0; 
-    PWM3DCL = 0x00;   
+   @Preconditions
+     None
 
- }
+   @Param
+     None
 
- void PWM3_LoadDutyValue(uint16_t dutyValue)
- {
-     // Writing to 8 MSBs of PWM duty cycle in PWMDCH register
-     PWM3DCH = (dutyValue & 0x03FC)>>2;
+   @Returns
+     None
+
+   @Comment
      
-     // Writing to 2 LSBs of PWM duty cycle in PWMDCL register
-     PWM3DCL = (dutyValue & 0x0003)<<6;
- }
+
+  @Example
+     <code>
+     uint16_t dutycycle;
+
+     PWM4_Initialize();
+     PWM4_LoadDutyValue(dutycycle);
+     </code>
+  */
+ void PWM4_Initialize(void);
+
+ /**
+   @Summary
+     Loads 16-bit duty cycle.
+
+   @Description
+     This routine loads the 16 bit duty cycle value.
+
+   @Preconditions
+     PWM4_Initialize() function should have been called 
+         before calling this function.
+
+   @Param
+     Pass 16bit duty cycle value.
+
+   @Returns
+     None
+
+   @Example
+     <code>
+     uint16_t dutycycle;
+
+     PWM4_Initialize();
+     PWM4_LoadDutyValue(dutycycle);
+     </code>
+ */
+ void PWM4_LoadDutyValue(uint16_t dutyValue);
+
+ 
+ #ifdef __cplusplus  // Provide C++ Compatibility
+
+     }
+
+ #endif
+
+ #endif	//PWM4_H
  /**
   End of File
  */

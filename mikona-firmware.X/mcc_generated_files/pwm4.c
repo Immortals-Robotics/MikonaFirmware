@@ -1,17 +1,17 @@
  /**
-   PWM3 Generated Driver File
+   PWM4 Generated Driver File
  
    @Company
      Microchip Technology Inc.
  
    @File Name
-     pwm3.c
+     pwm4.c
  
    @Summary
-     This is the generated driver implementation file for the PWM3 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+     This is the generated driver implementation file for the PWM4 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
  
    @Description
-     This source file provides implementations for driver APIs for PWM3.
+     This source file provides implementations for driver APIs for PWM4.
      Generation Information :
          Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
          Device            :  PIC16F15224
@@ -49,33 +49,33 @@
  */
 
  #include <xc.h>
- #include "pwm3.h"
+ #include "pwm4.h"
 
  /**
    Section: PWM Module APIs
  */
 
- void PWM3_Initialize(void)
+ void PWM4_Initialize(void)
  {
     // Set the PWM to the options selected in the PIC10 / PIC12 / PIC16 / PIC18 MCUs.
-    // PWM3POL active_hi; PWM3EN enabled; 
-    PWM3CON = 0x80;   
+    // PWM4POL active_hi; PWM4EN enabled; 
+    PWM4CON = 0x80;   
 
     // DCH 0; 
-    PWM3DCH = 0x00;   
+    PWM4DCH = 0x00;   
 
     // DCL 0; 
-    PWM3DCL = 0x00;   
+    PWM4DCL = 0x00;   
 
  }
 
- void PWM3_LoadDutyValue(uint16_t dutyValue)
+ void PWM4_LoadDutyValue(uint16_t dutyValue)
  {
      // Writing to 8 MSBs of PWM duty cycle in PWMDCH register
-     PWM3DCH = (dutyValue & 0x03FC)>>2;
+     PWM4DCH = (dutyValue & 0x03FC)>>2;
      
      // Writing to 2 LSBs of PWM duty cycle in PWMDCL register
-     PWM3DCL = (dutyValue & 0x0003)<<6;
+     PWM4DCL = (dutyValue & 0x0003)<<6;
  }
  /**
   End of File

@@ -11,8 +11,7 @@ extern "C" {
 enum led_color_t
 {
     LedColorRed = 0,
-    LedColorGreen = 1,
-    LedColorOrange = 2,
+    LedColorGreen = 1
 };
 
 void set_led_color(enum led_color_t color);

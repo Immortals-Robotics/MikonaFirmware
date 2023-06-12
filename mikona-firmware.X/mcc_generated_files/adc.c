@@ -71,8 +71,8 @@ void ADC_Initialize(void)
     // ADFM right; ADPREF FVR; ADCS Frc; 
     ADCON1 = 0xF3;
     
-    // ADACT TMR2; 
-    ADACT = 0x04;
+    // ADACT TMR0; 
+    ADACT = 0x02;
     
     // ADRESL 0; 
     ADRESL = 0x00;
