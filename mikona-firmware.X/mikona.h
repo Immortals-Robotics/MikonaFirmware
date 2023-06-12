@@ -22,8 +22,8 @@ uint16_t get_v_out();
 void charge(bool charge);
 void discharge(bool enable);
 
-void kick_a(uint8_t duration);
-void kick_b(uint8_t duration);
+void kick_a(uint16_t duration);
+void kick_b(uint16_t duration);
 
 void setup_adc();
 

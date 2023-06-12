@@ -1,7 +1,7 @@
 #include "mikona.h"
 
 #include "mcc_generated_files/mcc.h"
-#include "i2c-callbacks.h"
+#include "protocol.h"
 
 void set_led_color(enum led_color_t color)
 {
@@ -50,10 +50,12 @@ void discharge(bool enable)
     }
 }
 
-void kick_a(uint8_t duration)
+void kick_a(uint16_t duration)
 {
     if (duration == 0)
         return;
+    
+    duration = duration >> 1;
     
     RC3_SetDigitalInput();
     PWM4_LoadDutyValue(0);
@@ -64,10 +66,12 @@ void kick_a(uint8_t duration)
     TMR2_Start();
 }
 
-void kick_b(uint8_t duration)
+void kick_b(uint16_t duration)
 {
     if (duration == 0)
         return;
+    
+    duration = duration >> 1;
     
     RC2_SetDigitalInput();
     PWM3_LoadDutyValue(0);
@@ -81,8 +85,7 @@ void kick_b(uint8_t duration)
 static void adc_interrupt_handler()
 {
     uint16_t v_out_raw = get_v_out();
-    g_registers.v_out[0] = v_out_raw & 0xff;
-    g_registers.v_out[1] = v_out_raw >> 8;
+    g_registers.v_out.u16 = v_out_raw;
 }
 
 void setup_adc()

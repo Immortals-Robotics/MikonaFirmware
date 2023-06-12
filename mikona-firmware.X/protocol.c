@@ -1,4 +1,4 @@
-#include "i2c-callbacks.h"
+#include "protocol.h"
 
 #include "mcc_generated_files/mcc.h"
 
@@ -53,11 +53,11 @@ static void i2c_read_callback()
         }
         else if (g_internal.reg_id == REG_KICK_A)
         {
-            g_registers.kick_a = read_data;
+            g_registers.kick_a.u8[array_idx] = read_data;
         }
         else if (g_internal.reg_id == REG_KICK_B)
         {
-            g_registers.kick_b = read_data;
+            g_registers.kick_b.u8[array_idx] = read_data;
         }
     }
     
@@ -79,7 +79,7 @@ static void i2c_write_callback()
     }
     else if (g_internal.reg_id == REG_V_OUT)
     {
-        write_data = g_registers.v_out[array_idx];
+        write_data = g_registers.v_out.u8[array_idx];
     }
     
     I2C1_Write(write_data);

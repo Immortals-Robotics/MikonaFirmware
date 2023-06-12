@@ -1,5 +1,5 @@
-#ifndef I2C_CALLBACKS_H
-#define	I2C_CALLBACKS_H
+#ifndef PROTOCOL_H
+#define	PROTOCOL_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -8,18 +8,24 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+union reg_u16
+{
+    uint8_t u8[2];
+    uint16_t u16;
+};
+    
 struct registers_t
 {
     // read
     uint8_t dev_id;
     uint8_t status;
-    uint8_t v_out[2];
+    union reg_u16 v_out;
 
     // write
     bool    charge;
     bool    discharge;
-    uint8_t kick_a;
-    uint8_t kick_b;
+    union reg_u16 kick_a;
+    union reg_u16 kick_b;
 };
 
 extern struct registers_t g_registers;
@@ -30,4 +36,4 @@ void set_i2c_callbacks();
 }
 #endif
 
-#endif	/* I2C_CALLBACKS_H */
+#endif	/* PROTOCOL_H */

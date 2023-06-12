@@ -43,7 +43,7 @@
 
 #include "mcc_generated_files/mcc.h"
 
-#include "i2c-callbacks.h"
+#include "protocol.h"
 #include "mikona.h"
 
 /*
@@ -92,16 +92,16 @@ void main(void)
         charge(g_registers.charge);
         discharge(g_registers.discharge);
                 
-        if (g_registers.kick_a)
+        if (g_registers.kick_a.u16)
         {
-            kick_a(g_registers.kick_a);
-            g_registers.kick_a = 0;
+            kick_a(g_registers.kick_a.u16);
+            g_registers.kick_a.u16 = 0;
         }
         
-        if (g_registers.kick_b)
+        if (g_registers.kick_b.u16)
         {
-            kick_b(g_registers.kick_b);
-            g_registers.kick_b = 0;
+            kick_b(g_registers.kick_b.u16);
+            g_registers.kick_b.u16 = 0;
         }
     }
     
