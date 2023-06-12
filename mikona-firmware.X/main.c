@@ -78,7 +78,7 @@ void main(void)
     while (1)
     {
         // Add your application code
-        g_registers.status = is_done();
+        reg_status_set_done(&g_registers.status, is_done());
         
         if (is_done())
         {
@@ -89,8 +89,8 @@ void main(void)
             set_led_color(LedColorGreen);
         }
         
-        charge(g_registers.charge);
-        discharge(g_registers.discharge);
+        charge(reg_status_get_charge(g_registers.status));
+        discharge(reg_status_get_discharge(g_registers.status));
                 
         if (g_registers.kick_a.u16)
         {
