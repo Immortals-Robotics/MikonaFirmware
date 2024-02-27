@@ -1,0 +1,9 @@
+# Based on https://microchipdeveloper.com/faq:72
+
+mikona-firmware.X/.generated_files/
+mikona-firmware.X/build/
+mikona-firmware.X/dist/
+
+mikona-firmware.X/nbproject/Makefile-*
+mikona-firmware.X/nbproject/Package-*
+mikona-firmware.X/nbproject/private/
