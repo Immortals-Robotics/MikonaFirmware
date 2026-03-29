@@ -33,7 +33,7 @@ uint8_t get_v_out(void)
     return (uint8_t)(v > 255u ? 255u : v);
 }
 
-void charge(bool enable)
+void setCharge(bool enable)
 {
     if (enable)
     {
@@ -45,7 +45,7 @@ void charge(bool enable)
     }
 }
 
-void discharge(bool enable)
+void setDischarge(bool enable)
 {
     if (enable)
     {
@@ -57,7 +57,7 @@ void discharge(bool enable)
     }
 }
 
-void kick_a(uint16_t duration)
+void setKickA(uint16_t duration)
 {
     if (duration == 0)
         return;
@@ -73,7 +73,7 @@ void kick_a(uint16_t duration)
     TMR2_Start();
 }
 
-void kick_b(uint16_t duration)
+void setKickB(uint16_t duration)
 {
     if (duration == 0)
         return;

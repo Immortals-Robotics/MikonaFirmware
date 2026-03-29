@@ -174,9 +174,12 @@
             "files": [
                 "Makefile",
                 "mcc_generated_files/*",
-                "*.c",
-                "*.h",
-                "*.mc3"
+                "main.c",
+                "mikona-mcc.mc3",
+                "mikona.c",
+                "mikona.h",
+                "protocol.c",
+                "protocol.h"
             ],
             "encoding": "ISO-8859-1"
         }

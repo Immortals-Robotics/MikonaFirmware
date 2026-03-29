@@ -20,11 +20,11 @@ bool is_done(void);
 // Returns voltage in volts, scaled to fit in uint8_t (0-255 = 0-4.096V)
 uint8_t get_v_out(void);
 
-void charge(bool charge);
-void discharge(bool enable);
+void setCharge(bool charge);
+void setDischarge(bool enable);
 
-void kick_a(uint16_t duration);
-void kick_b(uint16_t duration);
+void setKickA(uint16_t duration);
+void setKickB(uint16_t duration);
 
 void setup_adc(void);
 

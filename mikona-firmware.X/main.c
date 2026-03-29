@@ -41,12 +41,10 @@
     SOFTWARE.
 */
 
-#include "mcc_generated_files/adc.h"
 #include "mcc_generated_files/mcc.h"
 
 #include "protocol.h"
 #include "mikona.h"
-#include <stdint.h>
 
 /*
                          Main application
@@ -79,10 +77,8 @@ int main(void)
     
     while (1)
     {
-        // Add your application code
-        reg_status_set_done(&g_registers.status, is_done());
-
         bool is_done_value = is_done();
+        REG_SET_BIT(REG_STATUS_DONE_BIT, is_done_value);
         if (is_done_value)
         {
             set_led_color(LedColorRed);
@@ -92,21 +88,21 @@ int main(void)
             set_led_color(LedColorGreen);
         }
         
-        bool charge_enabled  = reg_status_get_charge(g_registers.status);
-        bool discharge_enabled = reg_status_get_discharge(g_registers.status);
+        bool charge_enabled    = REG_GET_BIT(REG_STATUS_CHARGE_BIT);
+        bool discharge_enabled = REG_GET_BIT(REG_STATUS_DISCHARGE_BIT);
         
-        charge(charge_enabled);
-        discharge(discharge_enabled);
+        setCharge(charge_enabled);
+        setDischarge(discharge_enabled);
                 
         if (g_registers.kick_a.u16)
         {
-            kick_a(g_registers.kick_a.u16);
+            setKickA(g_registers.kick_a.u16);
             g_registers.kick_a.u16 = 0;
         }
         
         if (g_registers.kick_b.u16)
         {
-            kick_b(g_registers.kick_b.u16);
+            setKickB(g_registers.kick_b.u16);
             g_registers.kick_b.u16 = 0;
         }
     }

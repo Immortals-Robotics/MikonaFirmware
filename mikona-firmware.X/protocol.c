@@ -2,74 +2,7 @@
 
 #include "mcc_generated_files/mcc.h"
 
-// registers
-#define REG_DEV_ID 0x01
-#define REG_STATUS 0x02
-#define REG_V_OUT  0x03
-#define REG_KICK_A 0x04
-#define REG_KICK_B 0x05
-
-struct registers_t g_registers = 
-{
-    .dev_id = 0x54
-};
-
-// status bits: 
-// [7|6|5|4|  3  |  2 |    1    |   0  ]
-// [X|X|X|X|FAULT|DONE|DISCHARGE|CHARGE]
-
-#define REG_STATUS_CHARGE_MASK    0b00000001
-#define REG_STATUS_DISCHARGE_MASK 0b00000010
-#define REG_STATUS_DONE_MASK      0b00000100
-#define REG_STATUS_FAULT_MASK     0b00001000
-
-#define REG_STATUS_CHARGE_SHIFT    0
-#define REG_STATUS_DISCHARGE_SHIFT 1
-#define REG_STATUS_DONE_SHIFT      2
-#define REG_STATUS_FAULT_SHIFT     3
-
-#define REG_STATUS_READ_MASK 0b00001111
-#define REG_STATUS_WRITE_MASK 0b00001011
-
-bool reg_status_get_charge(uint8_t status)
-{
-    return (status & REG_STATUS_CHARGE_MASK) >> REG_STATUS_CHARGE_SHIFT;
-}
-
-bool reg_status_get_discharge(uint8_t status)
-{
-    return (status & REG_STATUS_DISCHARGE_MASK) >> REG_STATUS_DISCHARGE_SHIFT;
-}
-
-bool reg_status_get_done(uint8_t status)
-{
-    return (status & REG_STATUS_DONE_MASK) >> REG_STATUS_DONE_SHIFT;
-}
-
-bool reg_status_get_fault(uint8_t status)
-{
-    return (status & REG_STATUS_FAULT_MASK) >> REG_STATUS_FAULT_SHIFT;
-}
-
-void reg_status_set_charge(uint8_t* status, bool value)
-{
-    *status = (~REG_STATUS_CHARGE_MASK & (*status)) | (value << REG_STATUS_CHARGE_SHIFT);
-}
-
-void reg_status_set_discharge(uint8_t* status, bool value)
-{
-    *status = (~REG_STATUS_DISCHARGE_MASK & (*status)) | (value << REG_STATUS_DISCHARGE_SHIFT);
-}
-
-void reg_status_set_done(uint8_t* status, bool value)
-{
-    *status = (~REG_STATUS_DONE_MASK & (*status)) | (value << REG_STATUS_DONE_SHIFT);
-}
-
-void reg_status_set_fault(uint8_t* status, bool value)
-{
-    *status = (~REG_STATUS_FAULT_MASK & (*status)) | (value << REG_STATUS_FAULT_SHIFT);
-}
+struct registers_t g_registers = {};
 
 static struct
 {
@@ -94,17 +27,17 @@ static void i2c_read_callback(void)
     {
         uint8_t array_idx = g_internal.counter - 1;
         
-        if (g_internal.reg_id == REG_STATUS)
+        if (g_internal.reg_id == REG_ADDR_STATUS)
         {
-            g_registers.status = 
+            g_registers.status =
                     (~REG_STATUS_WRITE_MASK & g_registers.status) |
                     (REG_STATUS_WRITE_MASK & read_data);
         }
-        else if (g_internal.reg_id == REG_KICK_A)
+        else if (g_internal.reg_id == REG_ADDR_KICK_A)
         {
             g_registers.kick_a.u8[array_idx] = read_data;
         }
-        else if (g_internal.reg_id == REG_KICK_B)
+        else if (g_internal.reg_id == REG_ADDR_KICK_B)
         {
             g_registers.kick_b.u8[array_idx] = read_data;
         }
@@ -118,15 +51,15 @@ static void i2c_write_callback(void)
     uint8_t array_idx = g_internal.counter;
     uint8_t write_data = 0;
         
-    if (g_internal.reg_id == REG_DEV_ID)
+    if (g_internal.reg_id == REG_ADDR_DEV_ID)
     {
-        write_data = g_registers.dev_id;
+        write_data = DEV_ID;
     }
-    else if (g_internal.reg_id == REG_STATUS)
+    else if (g_internal.reg_id == REG_ADDR_STATUS)
     {
         write_data = g_registers.status & REG_STATUS_READ_MASK;
     }
-    else if (g_internal.reg_id == REG_V_OUT)
+    else if (g_internal.reg_id == REG_ADDR_V_OUT)
     {
         write_data = g_registers.v_out;
     }
@@ -141,19 +74,9 @@ static void i2c_address_callback(void)
     g_internal.counter = 0;
 }
 
-static void i2c_write_collision_callback(void)
-{
-}
-
-static void i2c_bus_collision_callback(void)
-{
-}
-
 void set_i2c_callbacks(void)
 {
     I2C1_SlaveSetReadIntHandler(i2c_read_callback);
     I2C1_SlaveSetWriteIntHandler(i2c_write_callback);
     I2C1_SlaveSetAddrIntHandler(i2c_address_callback);
-    I2C1_SlaveSetWrColIntHandler(i2c_write_collision_callback);
-    I2C1_SlaveSetBusColIntHandler(i2c_bus_collision_callback);
 }
