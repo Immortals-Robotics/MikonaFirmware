@@ -1,6 +1,7 @@
 #include "protocol.h"
 
 #include "mcc_generated_files/mcc.h"
+#include "mikona.h"
 
 struct registers_t g_registers = {};
 
@@ -32,17 +33,32 @@ static void i2c_read_callback(void)
             g_registers.status =
                     (~REG_STATUS_WRITE_MASK & g_registers.status) |
                     (REG_STATUS_WRITE_MASK & read_data);
+
+            setCharge(REG_GET_BIT(REG_STATUS_CHARGE_BIT));
+            setDischarge(REG_GET_BIT(REG_STATUS_DISCHARGE_BIT));
         }
         else if (g_internal.reg_id == REG_ADDR_KICK_A)
         {
             g_registers.kick_a.u8[array_idx] = read_data;
+
+            if (array_idx == 1)
+            {
+                setKickA(g_registers.kick_a.u16);
+                g_registers.kick_a.u16 = 0;
+            }
         }
         else if (g_internal.reg_id == REG_ADDR_KICK_B)
         {
             g_registers.kick_b.u8[array_idx] = read_data;
+            
+            if (array_idx == 1)
+            {
+                setKickB(g_registers.kick_b.u16);
+                g_registers.kick_b.u16 = 0;
+            }
         }
     }
-    
+
     g_internal.counter++;
 }
 
@@ -74,8 +90,9 @@ static void i2c_address_callback(void)
     g_internal.counter = 0;
 }
 
-void set_i2c_callbacks(void)
+void setup_i2c(void)
 {
+    I2C1_Open();
     I2C1_SlaveSetReadIntHandler(i2c_read_callback);
     I2C1_SlaveSetWriteIntHandler(i2c_write_callback);
     I2C1_SlaveSetAddrIntHandler(i2c_address_callback);

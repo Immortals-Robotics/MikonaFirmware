@@ -43,15 +43,16 @@ extern struct registers_t g_registers;
 #define REG_STATUS_DONE_BIT      2
 #define REG_STATUS_FAULT_BIT     3
 
-#define REG_STATUS_READ_MASK  0b00001111
-#define REG_STATUS_WRITE_MASK 0b00001011
+#define REG_STATUS_READ_MASK  ((1u << REG_STATUS_CHARGE_BIT) | (1u << REG_STATUS_DISCHARGE_BIT) | \
+                               (1u << REG_STATUS_DONE_BIT)   | (1u << REG_STATUS_FAULT_BIT))
+#define REG_STATUS_WRITE_MASK ((1u << REG_STATUS_CHARGE_BIT) | (1u << REG_STATUS_DISCHARGE_BIT) | \
+                               (1u << REG_STATUS_FAULT_BIT))
 
 // bit helpers (operate on g_registers.status)
 #define REG_GET_BIT(bit)        ((g_registers.status >> (bit)) & 1u)
 #define REG_SET_BIT(bit, value) (g_registers.status = (uint8_t)((g_registers.status & ~(uint8_t)(1u << (bit))) | ((uint8_t)(value) << (bit))))
 
-// sets our i2c interrupt handlers
-void set_i2c_callbacks(void);
+void setup_i2c(void);
 
 #ifdef	__cplusplus
 }
