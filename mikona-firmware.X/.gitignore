@@ -8,3 +8,5 @@ out/
 
 # Debug logs
 queuelogs/
+*.log
+*.log.inx
