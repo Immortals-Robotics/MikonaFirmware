@@ -53,6 +53,7 @@ extern struct registers_t g_registers;
 #define REG_SET_BIT(bit, value) (g_registers.status = (uint8_t)((g_registers.status & ~(uint8_t)(1u << (bit))) | ((uint8_t)(value) << (bit))))
 
 void setup_i2c(void);
+void shutdown_i2c(void);
 
 #ifdef	__cplusplus
 }

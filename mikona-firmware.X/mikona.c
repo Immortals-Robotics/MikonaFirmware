@@ -100,3 +100,15 @@ void setup_adc(void)
     ADC_SelectChannel(VOut);
 }
 
+static void done_ioc_handler(void)
+{
+    bool done = is_done();
+    REG_SET_BIT(REG_STATUS_DONE_BIT, done);
+    set_led_color(done ? LedColorRed : LedColorGreen);
+}
+
+void setup_done_ioc(void)
+{
+    IOCAF4_SetInterruptHandler(done_ioc_handler);
+}
+

@@ -1740,7 +1740,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="Pin Module" name="ioc RA4"/>
-         <value>none</value>
+         <value>any</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="Pin Module" name="ioc RA5"/>
@@ -1788,7 +1788,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="Pin Module" name="iocUserSet RA4"/>
-         <value>disabled</value>
+         <value>enabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="Pin Module" name="iocUserSet RA5"/>
@@ -3240,7 +3240,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="IOCI" settingAlias="enable"/>
-         <value>disabled</value>
+         <value>enabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="IOCI" settingAlias="flag"/>
@@ -4754,7 +4754,7 @@
       </entry>
       <entry>
          <file>mcc_generated_files/interrupt_manager.c</file>
-         <hash>d06f88aed8591bcc3df02b06d24be56b17f6c3c4a976bc8b34efc13183454cf8</hash>
+         <hash>752ea902e83e5a5d117189b6e71d4b47cd5b0501c6a948a355f5be1b3ab8d856</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/interrupt_manager.h</file>
@@ -4770,11 +4770,11 @@
       </entry>
       <entry>
          <file>mcc_generated_files/pin_manager.c</file>
-         <hash>1c20fa10e0bd4c75cf06cf6666a93acbb976fde704c8954f3032c5f5622706fd</hash>
+         <hash>e8f60ac2ae1c6f9d5ad254def0fc00f7c4accb7c4ac9d9fae500a8b1497e41f1</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/pin_manager.h</file>
-         <hash>e6af3f978b6ef14c066a2ac605b07d78c482c15b7ec2413e59c5c5bf5ffc3599</hash>
+         <hash>74783ceab4a233cb9be10d6ec6fb34366368f0cd28e9b3dd6a8bacce383a6146</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/pwm3.c</file>

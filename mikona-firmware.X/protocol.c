@@ -97,3 +97,8 @@ void setup_i2c(void)
     I2C1_SlaveSetWriteIntHandler(i2c_write_callback);
     I2C1_SlaveSetAddrIntHandler(i2c_address_callback);
 }
+
+void shutdown_i2c(void)
+{
+    I2C1_Close();
+}
