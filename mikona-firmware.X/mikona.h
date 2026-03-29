@@ -16,8 +16,8 @@ enum led_color_t
 
 void set_led_color(enum led_color_t color);
 
-bool is_done();
-uint16_t get_v_out();
+bool is_done(void);
+uint16_t get_v_out(void);
 
 void charge(bool charge);
 void discharge(bool enable);
@@ -25,7 +25,7 @@ void discharge(bool enable);
 void kick_a(uint16_t duration);
 void kick_b(uint16_t duration);
 
-void setup_adc();
+void setup_adc(void);
 
 #ifdef	__cplusplus
 }

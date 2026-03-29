@@ -36,7 +36,7 @@ void reg_status_set_done(uint8_t* status, bool value);
 void reg_status_set_fault(uint8_t* status, bool value);
     
 // sets our i2c interrupt handlers
-void set_i2c_callbacks();
+void set_i2c_callbacks(void);
 
 #ifdef	__cplusplus
 }

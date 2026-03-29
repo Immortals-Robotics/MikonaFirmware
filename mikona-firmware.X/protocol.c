@@ -80,7 +80,7 @@ static struct
     uint8_t read_address;
 } g_internal = {};
 
-static void i2c_read_callback()
+static void i2c_read_callback(void)
 {
     uint8_t read_data = I2C1_Read();
     
@@ -113,7 +113,7 @@ static void i2c_read_callback()
     g_internal.counter++;
 }
 
-static void i2c_write_callback()
+static void i2c_write_callback(void)
 {
     uint8_t array_idx = g_internal.counter;
     uint8_t write_data = 0;
@@ -135,21 +135,21 @@ static void i2c_write_callback()
     g_internal.counter++;
 }
 
-static void i2c_address_callback()
+static void i2c_address_callback(void)
 {
     g_internal.read_address = I2C1_Read() >> 1;
     g_internal.counter = 0;
 }
 
-static void i2c_write_collision_callback()
+static void i2c_write_collision_callback(void)
 {
 }
 
-static void i2c_bus_collision_callback()
+static void i2c_bus_collision_callback(void)
 {
 }
 
-void set_i2c_callbacks()
+void set_i2c_callbacks(void)
 {
     I2C1_SlaveSetReadIntHandler(i2c_read_callback);
     I2C1_SlaveSetWriteIntHandler(i2c_write_callback);

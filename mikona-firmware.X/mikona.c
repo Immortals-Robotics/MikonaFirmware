@@ -15,12 +15,12 @@ void set_led_color(enum led_color_t color)
     }
 }
 
-bool is_done()
+bool is_done(void)
 {
     return !Done_GetValue();
 }
 
-uint16_t get_v_out()
+uint16_t get_v_out(void)
 {
     // TODO: scale this to mV
     return  ADC_GetConversionResult();
@@ -82,13 +82,13 @@ void kick_b(uint16_t duration)
     TMR2_Start();
 }
 
-static void adc_interrupt_handler()
+static void adc_interrupt_handler(void)
 {
     uint16_t v_out_raw = get_v_out();
     g_registers.v_out.u16 = v_out_raw;
 }
 
-void setup_adc()
+void setup_adc(void)
 {
     ADC_SetInterruptHandler(adc_interrupt_handler);
     ADC_SelectChannel(VOut);

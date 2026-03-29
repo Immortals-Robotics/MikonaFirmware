@@ -50,7 +50,7 @@
                          Main application
  */
 
-void main(void)
+int main(void)
 {
     // initialize the device
     SYSTEM_Initialize();
@@ -106,6 +106,8 @@ void main(void)
     }
     
     I2C1_Close();
+
+    return 0;
 }
 
 /**

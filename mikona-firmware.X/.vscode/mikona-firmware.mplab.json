@@ -19,10 +19,16 @@
             ],
             "fileSet": "Project files",
             "toolchain": "default-XC8",
+            "userVariables": "default-uservariables",
             "includeLegacyMacros": true
         }
     ],
     "propertyGroups": [
+        {
+            "name": "default-uservariables",
+            "type": "uservariables",
+            "properties": {}
+        },
         {
             "name": "default-XC8",
             "type": "toolchain",
