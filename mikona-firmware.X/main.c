@@ -41,10 +41,12 @@
     SOFTWARE.
 */
 
+#include "mcc_generated_files/adc.h"
 #include "mcc_generated_files/mcc.h"
 
 #include "protocol.h"
 #include "mikona.h"
+#include <stdint.h>
 
 /*
                          Main application
@@ -79,8 +81,9 @@ int main(void)
     {
         // Add your application code
         reg_status_set_done(&g_registers.status, is_done());
-        
-        if (is_done())
+
+        bool is_done_value = is_done();
+        if (is_done_value)
         {
             set_led_color(LedColorRed);
         }
@@ -89,8 +92,11 @@ int main(void)
             set_led_color(LedColorGreen);
         }
         
-        charge(reg_status_get_charge(g_registers.status));
-        discharge(reg_status_get_discharge(g_registers.status));
+        bool charge_enabled  = reg_status_get_charge(g_registers.status);
+        bool discharge_enabled = reg_status_get_discharge(g_registers.status);
+        
+        charge(charge_enabled);
+        discharge(discharge_enabled);
                 
         if (g_registers.kick_a.u16)
         {

@@ -17,7 +17,8 @@ enum led_color_t
 void set_led_color(enum led_color_t color);
 
 bool is_done(void);
-uint16_t get_v_out(void);
+// Returns voltage in volts, scaled to fit in uint8_t (0-255 = 0-4.096V)
+uint8_t get_v_out(void);
 
 void charge(bool charge);
 void discharge(bool enable);

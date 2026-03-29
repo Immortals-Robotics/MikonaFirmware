@@ -128,7 +128,7 @@ static void i2c_write_callback(void)
     }
     else if (g_internal.reg_id == REG_V_OUT)
     {
-        write_data = g_registers.v_out.u8[array_idx];
+        write_data = g_registers.v_out;
     }
     
     I2C1_Write(write_data);

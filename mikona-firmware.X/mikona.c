@@ -2,6 +2,7 @@
 
 #include "mcc_generated_files/mcc.h"
 #include "protocol.h"
+#include <stdint.h>
 
 void set_led_color(enum led_color_t color)
 {
@@ -20,10 +21,16 @@ bool is_done(void)
     return !Done_GetValue();
 }
 
-uint16_t get_v_out(void)
+uint8_t get_v_out(void)
 {
-    // TODO: scale this to mV
-    return  ADC_GetConversionResult();
+    uint16_t adc_raw = ADC_GetConversionResult();
+    // V_actual = adc * (4.096 * 101 / 1023)
+    // V_actual [volts] = adc * (4096 * 101) / (1023 * 1000)
+    // With integer arithmetic, scale factor = 413696 / 1023000
+    // adc max = 1023 → 1023 * 413696 = ~423M, fits in uint32
+    uint32_t num = (uint32_t)adc_raw * 413696u;
+    uint32_t v   = num / 1023000u;
+    return (uint8_t)(v > 255u ? 255u : v);
 }
 
 void charge(bool enable)
@@ -84,8 +91,7 @@ void kick_b(uint16_t duration)
 
 static void adc_interrupt_handler(void)
 {
-    uint16_t v_out_raw = get_v_out();
-    g_registers.v_out.u16 = v_out_raw;
+    g_registers.v_out = get_v_out();
 }
 
 void setup_adc(void)
@@ -93,3 +99,4 @@ void setup_adc(void)
     ADC_SetInterruptHandler(adc_interrupt_handler);
     ADC_SelectChannel(VOut);
 }
+
