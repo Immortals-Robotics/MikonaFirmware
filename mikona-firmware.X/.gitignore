@@ -1,0 +1,10 @@
+# Local machine state
+.vscode/*.mplab-local.json
+
+# Build output
+_build/
+cmake/
+out/
+
+# Debug logs
+queuelogs/

@@ -1,0 +1,10 @@
+{
+    "memory-inspector.debugTypes": [
+        "arm-debugger",
+        "embedded-debug",
+        "gdb",
+        "mplab-core-da"
+    ],
+    "mplab.clangd.compileCommandsDir": "${workspaceFolder}/_build/mikona-firmware/default",
+    "mplab.clangd.path": "/Applications/microchip/xc8/v3.10/bin/xc8-clangd"
+}
