@@ -25,11 +25,8 @@ uint8_t get_v_out(void)
 {
     uint16_t adc_raw = ADC_GetConversionResult();
     // V_actual = adc * (4.096 * 101 / 1023)
-    // V_actual [volts] = adc * (4096 * 101) / (1023 * 1000)
-    // With integer arithmetic, scale factor = 413696 / 1023000
-    // adc max = 1023 → 1023 * 413696 = ~423M, fits in uint32
-    uint32_t num = (uint32_t)adc_raw * 413696u;
-    uint32_t v   = num / 1023000u;
+    // TODO: figure out why a 1.25 factor was needed in the divider
+    uint32_t v = ((uint32_t)adc_raw * 404u) / 1250u;
     return (uint8_t)(v > 255u ? 255u : v);
 }
 
