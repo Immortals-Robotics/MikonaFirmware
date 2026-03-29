@@ -32,7 +32,7 @@ struct registers_t
     union reg_u16 kick_a; // write-only @ REG_ADDR_KICK_A
     union reg_u16 kick_b; // write-only @ REG_ADDR_KICK_B
 };
-extern struct registers_t g_registers;
+extern volatile struct registers_t g_registers;
 
 // status bits:
 // [7|6|5|4|  3  |  2 |    1    |   0  ]

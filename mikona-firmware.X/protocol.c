@@ -3,14 +3,12 @@
 #include "mcc_generated_files/mcc.h"
 #include "mikona.h"
 
-struct registers_t g_registers = {};
+volatile struct registers_t g_registers = {};
 
-static struct
+static volatile struct
 {
-    // internal data
     uint8_t reg_id;
     uint8_t counter;
-
     uint8_t read_address;
 } g_internal = {};
 
