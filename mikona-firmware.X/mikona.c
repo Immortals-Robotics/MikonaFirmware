@@ -39,6 +39,8 @@ static volatile uint8_t  g_kick_fault_bit    = 0;
 static volatile uint16_t g_kick_start_ms     = 0;
 static volatile uint8_t  g_kick_start_v      = 0;
 
+#define KICK_MIN_START_V       (KICK_MIN_DROP_V * 2u)  // skip check if caps were below this at kick time
+
 void set_led_color(enum led_color_t color)
 {
     if (color == LedColorRed)
@@ -202,8 +204,9 @@ static void adc_interrupt_handler(void)
         (uint16_t)(g_time_ms - g_kick_start_ms) >= KICK_CHECK_MS)
     {
         g_kick_pending = false;
-        if (g_registers.v_out > g_kick_start_v ||
-            (g_kick_start_v - g_registers.v_out) < KICK_MIN_DROP_V)
+        if (g_kick_start_v >= KICK_MIN_START_V &&
+            (g_registers.v_out > g_kick_start_v ||
+             (g_kick_start_v - g_registers.v_out) < KICK_MIN_DROP_V))
         {
             set_fault(g_kick_fault_bit);
         }
