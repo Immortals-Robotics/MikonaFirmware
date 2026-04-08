@@ -12,6 +12,7 @@ int main(void)
     setup_adc();
     setup_i2c();
     setup_done_ioc();
+    set_led_color(LedColorGreen);
 
     while (1)
     {

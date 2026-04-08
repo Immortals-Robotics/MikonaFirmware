@@ -21,6 +21,7 @@ typedef enum
     REG_ADDR_V_OUT  = 0x03,
     REG_ADDR_KICK_A = 0x04,
     REG_ADDR_KICK_B = 0x05,
+    REG_ADDR_FAULT  = 0x06,
 } reg_addr_t;
 
 #define DEV_ID 0x54
@@ -31,10 +32,11 @@ struct registers_t
     uint8_t v_out;        // read-only  @ REG_ADDR_V_OUT
     union reg_u16 kick_a; // write-only @ REG_ADDR_KICK_A
     union reg_u16 kick_b; // write-only @ REG_ADDR_KICK_B
+    uint8_t fault;        // read-write @ REG_ADDR_FAULT (write 0 to clear)
 };
 extern volatile struct registers_t g_registers;
 
-// status bits:
+// status register bits:
 // [7|6|5|4|  3  |  2 |    1    |   0  ]
 // [X|X|X|X|FAULT|DONE|DISCHARGE|CHARGE]
 
@@ -42,6 +44,15 @@ extern volatile struct registers_t g_registers;
 #define REG_STATUS_DISCHARGE_BIT 1
 #define REG_STATUS_DONE_BIT      2
 #define REG_STATUS_FAULT_BIT     3
+
+// fault register bits:
+// [7|6|5|4|          3         |        2        |       1        |      0      ]
+// [X|X|X|X|FAULT_KICK_NO_DROP  |FAULT_DISCH_STUCK|FAULT_CHG_TMOUT|FAULT_INV_CMD]
+
+#define REG_FAULT_INVALID_CMD_BIT    0
+#define REG_FAULT_CHARGE_TIMEOUT_BIT 1
+#define REG_FAULT_DISCHARGE_STUCK_BIT 2
+#define REG_FAULT_KICK_NO_DROP_BIT   3
 
 #define REG_STATUS_READ_MASK  ((1u << REG_STATUS_CHARGE_BIT) | (1u << REG_STATUS_DISCHARGE_BIT) | \
                                (1u << REG_STATUS_DONE_BIT)   | (1u << REG_STATUS_FAULT_BIT))

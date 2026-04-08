@@ -4,8 +4,13 @@
 #include "protocol.h"
 #include <stdint.h>
 
-#define RECHARGE_THRESHOLD_V  10u
-#define MAX_VOLTAGE_SAMPLES   5u
+#define RECHARGE_THRESHOLD_V   10u
+#define MAX_VOLTAGE_SAMPLES    5u
+#define CHARGE_TIMEOUT_MS      5000u
+#define DISCHARGE_CHECK_MS     1000u
+#define DISCHARGE_MIN_DROP_V   5u
+#define KICK_CHECK_MS          50u
+#define KICK_MIN_DROP_V        10u
 
 typedef enum
 {
@@ -14,11 +19,24 @@ typedef enum
     CS_CHARGED,
 } charge_state_t;
 
+// ADC ISR fires every 10ms (TMR0 @ 250kHz with 2500-tick reload).
+// g_time_ms wraps at 65535 — all timeout comparisons use wrapping subtraction.
+static volatile uint16_t g_time_ms = 0;
+
 static volatile charge_state_t g_charge_state = CS_IDLE;
+static volatile uint16_t g_charge_start_ms = 0;
+
 static volatile uint8_t g_max_voltage = 0;
 static volatile uint8_t g_max_voltage_samples[MAX_VOLTAGE_SAMPLES];
 static volatile uint8_t g_max_voltage_count = 0;
 static volatile uint8_t g_max_voltage_idx = 0;
+
+static volatile uint16_t g_discharge_start_ms = 0;
+static volatile uint8_t  g_discharge_start_v  = 0;
+
+static volatile bool     g_kick_pending   = false;
+static volatile uint16_t g_kick_start_ms  = 0;
+static volatile uint8_t  g_kick_start_v   = 0;
 
 void set_led_color(enum led_color_t color)
 {
@@ -46,6 +64,13 @@ uint8_t get_v_out(void)
     return (uint8_t)(v > 255u ? 255u : v);
 }
 
+void set_fault(uint8_t fault_bit)
+{
+    g_registers.fault |= (uint8_t)(1u << fault_bit);
+    REG_SET_BIT(REG_STATUS_FAULT_BIT, 1);
+    set_led_color(LedColorRed);
+}
+
 static void setCharge(bool enable)
 {
     if (enable)
@@ -58,7 +83,7 @@ static void setCharge(bool enable)
     }
 }
 
-void setDischarge(bool enable)
+static void setDischarge(bool enable)
 {
     if (enable)
     {
@@ -83,6 +108,10 @@ void setKickA(uint16_t duration)
     RC2_SetDigitalOutput();
     PWM3_LoadDutyValue(duration+2);
 
+    g_kick_pending  = true;
+    g_kick_start_ms = g_time_ms;
+    g_kick_start_v  = g_registers.v_out;
+
     TMR2_Start();
 }
 
@@ -98,6 +127,10 @@ void setKickB(uint16_t duration)
 
     RC3_SetDigitalOutput();
     PWM4_LoadDutyValue(duration+2);
+
+    g_kick_pending  = true;
+    g_kick_start_ms = g_time_ms;
+    g_kick_start_v  = g_registers.v_out;
 
     TMR2_Start();
 }
@@ -129,7 +162,49 @@ static void update_max_voltage(uint8_t v)
 
 static void adc_interrupt_handler(void)
 {
+    g_time_ms += 10u;
     g_registers.v_out = get_v_out();
+
+    // Charge timeout fault: IC never pulled DONE low within the allowed window.
+    if (g_charge_state == CS_CHARGING &&
+        (uint16_t)(g_time_ms - g_charge_start_ms) >= CHARGE_TIMEOUT_MS)
+    {
+        setCharge(false);
+        g_charge_state = CS_IDLE;
+        REG_SET_BIT(REG_STATUS_CHARGE_BIT, 0);
+        set_fault(REG_FAULT_CHARGE_TIMEOUT_BIT);
+    }
+
+    // Discharge stuck fault: voltage hasn't dropped enough after check window.
+    if (REG_GET_BIT(REG_STATUS_DISCHARGE_BIT) &&
+        (uint16_t)(g_time_ms - g_discharge_start_ms) >= DISCHARGE_CHECK_MS)
+    {
+        if (g_registers.v_out > g_discharge_start_v ||
+            (g_discharge_start_v - g_registers.v_out) < DISCHARGE_MIN_DROP_V)
+        {
+            setDischarge(false);
+            REG_SET_BIT(REG_STATUS_DISCHARGE_BIT, 0);
+            set_fault(REG_FAULT_DISCHARGE_STUCK_BIT);
+        }
+        else
+        {
+            // Still dropping fine — slide the window forward.
+            g_discharge_start_ms = g_time_ms;
+            g_discharge_start_v  = g_registers.v_out;
+        }
+    }
+
+    // Kick no-drop fault: voltage didn't fall after a kick (stuck FET or open circuit).
+    if (g_kick_pending &&
+        (uint16_t)(g_time_ms - g_kick_start_ms) >= KICK_CHECK_MS)
+    {
+        g_kick_pending = false;
+        if (g_registers.v_out > g_kick_start_v ||
+            (g_kick_start_v - g_registers.v_out) < KICK_MIN_DROP_V)
+        {
+            set_fault(REG_FAULT_KICK_NO_DROP_BIT);
+        }
+    }
 
     if (g_max_voltage > 0)
     {
@@ -139,13 +214,13 @@ static void adc_interrupt_handler(void)
         bool done = g_registers.v_out >= threshold;
 
         REG_SET_BIT(REG_STATUS_DONE_BIT, done);
-        set_led_color(done ? LedColorRed : LedColorGreen);
 
         if (!done && REG_GET_BIT(REG_STATUS_CHARGE_BIT) && g_charge_state == CS_CHARGED)
         {
             // Voltage dropped below threshold: pull CHARGE low to reset IC.
             // The IC will respond by pulling DONE high, triggering done_ioc_handler,
             // which will re-arm CHARGE high to start the next cycle.
+            g_charge_start_ms = g_time_ms;
             g_charge_state = CS_CHARGING;
             setCharge(false);
         }
@@ -166,6 +241,7 @@ static void done_ioc_handler(void)
         // Re-arm immediately if user still wants charging.
         if (REG_GET_BIT(REG_STATUS_CHARGE_BIT))
         {
+            g_charge_start_ms = g_time_ms;
             setCharge(true);
         }
     }
@@ -177,6 +253,7 @@ void on_charge_requested(bool enable)
     {
         if (g_charge_state == CS_IDLE)
         {
+            g_charge_start_ms = g_time_ms;
             setCharge(true);
             g_charge_state = CS_CHARGING;
         }
@@ -185,6 +262,16 @@ void on_charge_requested(bool enable)
     {
         setCharge(false);
         g_charge_state = CS_IDLE;
+    }
+}
+
+void on_discharge_requested(bool enable)
+{
+    setDischarge(enable);
+    if (enable)
+    {
+        g_discharge_start_ms = g_time_ms;
+        g_discharge_start_v  = g_registers.v_out;
     }
 }
 

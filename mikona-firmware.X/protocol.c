@@ -32,8 +32,23 @@ static void i2c_read_callback(void)
                     (~REG_STATUS_WRITE_MASK & g_registers.status) |
                     (REG_STATUS_WRITE_MASK & read_data);
 
-            on_charge_requested(REG_GET_BIT(REG_STATUS_CHARGE_BIT));
-            setDischarge(REG_GET_BIT(REG_STATUS_DISCHARGE_BIT));
+            bool charge = REG_GET_BIT(REG_STATUS_CHARGE_BIT);
+            bool discharge = REG_GET_BIT(REG_STATUS_DISCHARGE_BIT);
+
+            if (charge && discharge)
+            {
+                // Charging and discharging simultaneously is invalid: reject both.
+                REG_SET_BIT(REG_STATUS_CHARGE_BIT, 0);
+                REG_SET_BIT(REG_STATUS_DISCHARGE_BIT, 0);
+                set_fault(REG_FAULT_INVALID_CMD_BIT);
+                on_charge_requested(false);
+                on_discharge_requested(false);
+            }
+            else
+            {
+                on_charge_requested(charge);
+                on_discharge_requested(discharge);
+            }
         }
         else if (g_internal.reg_id == REG_ADDR_KICK_A)
         {
@@ -41,18 +56,42 @@ static void i2c_read_callback(void)
 
             if (array_idx == 1)
             {
-                setKickA(g_registers.kick_a.u16);
+                if (REG_GET_BIT(REG_STATUS_DISCHARGE_BIT))
+                {
+                    set_fault(REG_FAULT_INVALID_CMD_BIT);
+                }
+                else
+                {
+                    setKickA(g_registers.kick_a.u16);
+                }
                 g_registers.kick_a.u16 = 0;
             }
         }
         else if (g_internal.reg_id == REG_ADDR_KICK_B)
         {
             g_registers.kick_b.u8[array_idx] = read_data;
-            
+
             if (array_idx == 1)
             {
-                setKickB(g_registers.kick_b.u16);
+                if (REG_GET_BIT(REG_STATUS_DISCHARGE_BIT))
+                {
+                    set_fault(REG_FAULT_INVALID_CMD_BIT);
+                }
+                else
+                {
+                    setKickB(g_registers.kick_b.u16);
+                }
                 g_registers.kick_b.u16 = 0;
+            }
+        }
+        else if (g_internal.reg_id == REG_ADDR_FAULT)
+        {
+            // Master writes 0 to clear all fault bits and the status FAULT flag.
+            if (read_data == 0)
+            {
+                g_registers.fault = 0;
+                REG_SET_BIT(REG_STATUS_FAULT_BIT, 0);
+                set_led_color(LedColorGreen);
             }
         }
     }
@@ -76,6 +115,10 @@ static void i2c_write_callback(void)
     else if (g_internal.reg_id == REG_ADDR_V_OUT)
     {
         write_data = g_registers.v_out;
+    }
+    else if (g_internal.reg_id == REG_ADDR_FAULT)
+    {
+        write_data = g_registers.fault;
     }
     
     I2C1_Write(write_data);
