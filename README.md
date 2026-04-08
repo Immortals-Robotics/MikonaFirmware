@@ -83,16 +83,17 @@ Kick A and Kick B are mutually exclusive at the hardware level — issuing one d
 ### FAULT Register (`0x06`)
 
 ```text
-Bit:  7  6  5  4  |      3       |        2        |       1        |      0
-      X  X  X  X  |KICK_NO_DROP  |DISCHARGE_STUCK  |CHARGE_TIMEOUT  |INVALID_CMD
+Bit:  7  6  5  |       4        |       3        |        2        |       1        |      0
+      X  X  X  |KICK_B_NO_DROP  |KICK_A_NO_DROP  |DISCHARGE_STUCK  |CHARGE_TIMEOUT  |INVALID_CMD
 ```
 
-| Bit | Name              | Description                                                                                         |
-|-----|-------------------|-----------------------------------------------------------------------------------------------------|
-| 0   | `INVALID_CMD`     | Invalid command: charge+discharge simultaneously, or kick while discharging.                        |
-| 1   | `CHARGE_TIMEOUT`  | Charge cycle did not complete within 5s. Possible causes: disconnected capacitor, failed IC.        |
-| 2   | `DISCHARGE_STUCK` | Voltage did not drop by 5V per second during discharge. Possible causes: stuck FET, open circuit.   |
-| 3   | `KICK_NO_DROP`    | Voltage did not drop by 10V within 50ms of a kick. Possible causes: stuck FET, open circuit.        |
+| Bit | Name               | Description                                                                                        |
+|-----|--------------------|----------------------------------------------------------------------------------------------------|
+| 0   | `INVALID_CMD`      | Invalid command: charge+discharge simultaneously, or kick while discharging.                       |
+| 1   | `CHARGE_TIMEOUT`   | Charge cycle did not complete within 5s. Possible causes: disconnected capacitor, failed IC.       |
+| 2   | `DISCHARGE_STUCK`  | Voltage did not drop by 5V per second during discharge. Possible causes: stuck FET, open circuit.  |
+| 3   | `KICK_A_NO_DROP`   | Voltage did not drop by 10V within 50ms of kick A. Possible causes: stuck FET, open circuit.       |
+| 4   | `KICK_B_NO_DROP`   | Voltage did not drop by 10V within 50ms of kick B. Possible causes: stuck FET, open circuit.       |
 
 Multiple bits may be set simultaneously. The `FAULT` bit in the `STATUS` register is a summary flag set whenever any fault bit is set.
 

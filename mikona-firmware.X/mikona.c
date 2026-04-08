@@ -34,9 +34,10 @@ static volatile uint8_t g_max_voltage_idx = 0;
 static volatile uint16_t g_discharge_start_ms = 0;
 static volatile uint8_t  g_discharge_start_v  = 0;
 
-static volatile bool     g_kick_pending   = false;
-static volatile uint16_t g_kick_start_ms  = 0;
-static volatile uint8_t  g_kick_start_v   = 0;
+static volatile bool     g_kick_pending      = false;
+static volatile uint8_t  g_kick_fault_bit    = 0;
+static volatile uint16_t g_kick_start_ms     = 0;
+static volatile uint8_t  g_kick_start_v      = 0;
 
 void set_led_color(enum led_color_t color)
 {
@@ -108,9 +109,10 @@ void setKickA(uint16_t duration)
     RC2_SetDigitalOutput();
     PWM3_LoadDutyValue(duration+2);
 
-    g_kick_pending  = true;
-    g_kick_start_ms = g_time_ms;
-    g_kick_start_v  = g_registers.v_out;
+    g_kick_pending   = true;
+    g_kick_fault_bit = REG_FAULT_KICK_A_NO_DROP_BIT;
+    g_kick_start_ms  = g_time_ms;
+    g_kick_start_v   = g_registers.v_out;
 
     TMR2_Start();
 }
@@ -128,9 +130,10 @@ void setKickB(uint16_t duration)
     RC3_SetDigitalOutput();
     PWM4_LoadDutyValue(duration+2);
 
-    g_kick_pending  = true;
-    g_kick_start_ms = g_time_ms;
-    g_kick_start_v  = g_registers.v_out;
+    g_kick_pending   = true;
+    g_kick_fault_bit = REG_FAULT_KICK_B_NO_DROP_BIT;
+    g_kick_start_ms  = g_time_ms;
+    g_kick_start_v   = g_registers.v_out;
 
     TMR2_Start();
 }
@@ -202,7 +205,7 @@ static void adc_interrupt_handler(void)
         if (g_registers.v_out > g_kick_start_v ||
             (g_kick_start_v - g_registers.v_out) < KICK_MIN_DROP_V)
         {
-            set_fault(REG_FAULT_KICK_NO_DROP_BIT);
+            set_fault(g_kick_fault_bit);
         }
     }
 
