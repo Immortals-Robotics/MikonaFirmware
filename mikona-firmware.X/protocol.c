@@ -32,7 +32,7 @@ static void i2c_read_callback(void)
                     (~REG_STATUS_WRITE_MASK & g_registers.status) |
                     (REG_STATUS_WRITE_MASK & read_data);
 
-            setCharge(REG_GET_BIT(REG_STATUS_CHARGE_BIT));
+            on_charge_requested(REG_GET_BIT(REG_STATUS_CHARGE_BIT));
             setDischarge(REG_GET_BIT(REG_STATUS_DISCHARGE_BIT));
         }
         else if (g_internal.reg_id == REG_ADDR_KICK_A)
