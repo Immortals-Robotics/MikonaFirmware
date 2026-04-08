@@ -35,9 +35,9 @@ Bit:  7  6  5  4  |  3   |  2  |    1    |   0
 | 0   | `CHARGE`    | R/W | Set `1` to start charging capacitors. Clear to stop.                         |
 | 1   | `DISCHARGE` | R/W | Set `1` to discharge capacitors.                                             |
 | 2   | `DONE`      | R   | `1` when capacitor voltage is within 10V of the learned peak.                |
-| 3   | `FAULT`     | R/W | Summary fault flag. Set by firmware on any fault. Write `1` to clear.        |
+| 3   | `FAULT`     | R   | Summary fault flag. Read-only — clear by writing `0x00` to `FAULT` register. |
 
-**Write mask:** bits 0 (`CHARGE`), 1 (`DISCHARGE`), 3 (`FAULT`) are writable. Bit 2 (`DONE`) is read-only.
+**Write mask:** bits 0 (`CHARGE`) and 1 (`DISCHARGE`) only. Bits 2 (`DONE`) and 3 (`FAULT`) are read-only.
 
 #### Charging behavior
 

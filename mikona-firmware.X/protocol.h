@@ -28,7 +28,7 @@ typedef enum
 
 struct registers_t
 {
-    uint8_t status;       // read-write @ REG_ADDR_STATUS
+    uint8_t status;       // read-write @ REG_ADDR_STATUS (CHARGE, DISCHARGE writable; DONE, FAULT read-only)
     uint8_t v_out;        // read-only  @ REG_ADDR_V_OUT
     union reg_u16 kick_a; // write-only @ REG_ADDR_KICK_A
     union reg_u16 kick_b; // write-only @ REG_ADDR_KICK_B
@@ -39,6 +39,7 @@ extern volatile struct registers_t g_registers;
 // status register bits:
 // [7|6|5|4|  3  |  2 |    1    |   0  ]
 // [X|X|X|X|FAULT|DONE|DISCHARGE|CHARGE]
+// FAULT and DONE are read-only; clear FAULT by writing 0x00 to REG_ADDR_FAULT.
 
 #define REG_STATUS_CHARGE_BIT    0
 #define REG_STATUS_DISCHARGE_BIT 1
@@ -57,8 +58,7 @@ extern volatile struct registers_t g_registers;
 
 #define REG_STATUS_READ_MASK  ((1u << REG_STATUS_CHARGE_BIT) | (1u << REG_STATUS_DISCHARGE_BIT) | \
                                (1u << REG_STATUS_DONE_BIT)   | (1u << REG_STATUS_FAULT_BIT))
-#define REG_STATUS_WRITE_MASK ((1u << REG_STATUS_CHARGE_BIT) | (1u << REG_STATUS_DISCHARGE_BIT) | \
-                               (1u << REG_STATUS_FAULT_BIT))
+#define REG_STATUS_WRITE_MASK ((1u << REG_STATUS_CHARGE_BIT) | (1u << REG_STATUS_DISCHARGE_BIT))
 
 // bit helpers (operate on g_registers.status)
 #define REG_GET_BIT(bit)        ((g_registers.status >> (bit)) & 1u)
