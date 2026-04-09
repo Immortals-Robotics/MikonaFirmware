@@ -19,7 +19,7 @@ typedef enum
     CS_CHARGED,
 } charge_state_t;
 
-// ADC ISR fires every 10ms (TMR0 @ 250kHz with 2500-tick reload).
+// TMR0 ISR fires exactly every 10ms — g_time_ms is incremented there.
 // g_time_ms wraps at 65535 — all timeout comparisons use wrapping subtraction.
 static volatile uint16_t g_time_ms = 0;
 
@@ -165,9 +165,13 @@ static void update_max_voltage(uint8_t v)
     g_max_voltage = sorted[g_max_voltage_count / 2];
 }
 
-static void adc_interrupt_handler(void)
+static void tmr0_interrupt_handler(void)
 {
     g_time_ms += 10u;
+}
+
+static void adc_interrupt_handler(void)
+{
     g_registers.v_out = get_v_out();
 
     // Charge timeout fault: IC never pulled DONE low within the allowed window.
@@ -285,6 +289,11 @@ void setup_adc(void)
 {
     ADC_SetInterruptHandler(adc_interrupt_handler);
     ADC_SelectChannel(VOut);
+}
+
+void setup_timer(void)
+{
+    TMR0_SetInterruptHandler(tmr0_interrupt_handler);
 }
 
 void setup_done_ioc(void)

@@ -10,6 +10,7 @@ int main(void)
     INTERRUPT_PeripheralInterruptEnable();
 
     setup_adc();
+    setup_timer();
     setup_i2c();
     setup_done_ioc();
     set_led_color(LedColorGreen);

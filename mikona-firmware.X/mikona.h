@@ -28,6 +28,7 @@ void setKickA(uint16_t duration);
 void setKickB(uint16_t duration);
 
 void setup_adc(void);
+void setup_timer(void);
 void setup_done_ioc(void);
 
 #ifdef	__cplusplus
