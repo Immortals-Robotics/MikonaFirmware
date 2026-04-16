@@ -17,6 +17,7 @@ typedef enum
     CS_IDLE,
     CS_CHARGING,
     CS_CHARGED,
+    CS_KICK_INHIBIT,  // charging paused for kick; resumes automatically after KICK_CHECK_MS
 } charge_state_t;
 
 // TMR0 ISR fires exactly every 10ms — g_time_ms is incremented there.
@@ -115,6 +116,11 @@ void setKickA(uint16_t duration)
     g_kick_fault_bit = REG_FAULT_KICK_A_NO_DROP_BIT;
     g_kick_start_ms  = g_time_ms;
     g_kick_start_v   = g_registers.v_out;
+    if (g_charge_state != CS_IDLE)
+    {
+        g_charge_state = CS_KICK_INHIBIT;
+        setCharge(false);
+    }
 
     TMR2_Start();
 }
@@ -136,6 +142,11 @@ void setKickB(uint16_t duration)
     g_kick_fault_bit = REG_FAULT_KICK_B_NO_DROP_BIT;
     g_kick_start_ms  = g_time_ms;
     g_kick_start_v   = g_registers.v_out;
+    if (g_charge_state != CS_IDLE)
+    {
+        g_charge_state = CS_KICK_INHIBIT;
+        setCharge(false);
+    }
 
     TMR2_Start();
 }
@@ -214,6 +225,12 @@ static void adc_interrupt_handler(void)
         {
             set_fault(g_kick_fault_bit);
         }
+        if (g_charge_state == CS_KICK_INHIBIT)
+        {
+            g_charge_start_ms = g_time_ms;
+            g_charge_state = CS_CHARGING;
+            setCharge(true);
+        }
     }
 
     if (g_max_voltage > 0)
@@ -227,12 +244,11 @@ static void adc_interrupt_handler(void)
 
         if (!done && REG_GET_BIT(REG_STATUS_CHARGE_BIT) && g_charge_state == CS_CHARGED)
         {
-            // Voltage dropped below threshold: pull CHARGE low to reset IC.
-            // The IC will respond by pulling DONE high, triggering done_ioc_handler,
-            // which will re-arm CHARGE high to start the next cycle.
+            // IC is already in reset (done_ioc pulled CHARGE low when it finished).
+            // Start a new charge cycle directly.
             g_charge_start_ms = g_time_ms;
             g_charge_state = CS_CHARGING;
-            setCharge(false);
+            setCharge(true);
         }
     }
 }
@@ -244,17 +260,9 @@ static void done_ioc_handler(void)
         // DONE pin went low: IC finished a charge cycle.
         update_max_voltage(g_registers.v_out);
         g_charge_state = CS_CHARGED;
+        setCharge(false);  // reset IC immediately; recharge will re-arm directly when needed
     }
-    else
-    {
-        // DONE pin went high: IC was reset (we pulled CHARGE low).
-        // Re-arm immediately if user still wants charging.
-        if (REG_GET_BIT(REG_STATUS_CHARGE_BIT))
-        {
-            g_charge_start_ms = g_time_ms;
-            setCharge(true);
-        }
-    }
+    // DONE going high is just the IC acknowledging the reset — nothing to do.
 }
 
 void on_charge_requested(bool enable)
