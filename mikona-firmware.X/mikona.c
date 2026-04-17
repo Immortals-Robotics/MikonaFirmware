@@ -206,6 +206,7 @@ static void update_max_voltage(uint8_t v)
 static void tmr0_interrupt_handler(void)
 {
     g_time_ms += 10u;
+    CLRWDT();
 }
 
 static void adc_interrupt_handler(void)

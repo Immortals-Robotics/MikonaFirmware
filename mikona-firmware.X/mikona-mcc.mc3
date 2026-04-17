@@ -3788,7 +3788,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="System Module" registerAlias="CONFIG2"/>
-         <value>6855</value>
+         <value>6879</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="System Module" registerAlias="CONFIG4"/>
@@ -3840,7 +3840,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="System Module" registerAlias="CONFIG2" settingAlias="WDTE"/>
-         <value>OFF</value>
+         <value>ON</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="System Module" registerAlias="CONFIG4" settingAlias="BBEN"/>
@@ -4608,7 +4608,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="WDT" name="wdtPeriod"/>
-         <value>0.00103</value>
+         <value>1.05703</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="WDT" registerAlias="WDTCON" settingAlias="WDTCS" alias="LFINTOSC (31 kHz)"/>
@@ -4704,7 +4704,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="WDT" registerAlias="WDTCON"/>
-         <value>0</value>
+         <value>20</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="WDT" registerAlias="WDTCON" settingAlias="WDTCS"/>
@@ -4712,7 +4712,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="WDT" registerAlias="WDTCON" settingAlias="WDTPS"/>
-         <value>1:32</value>
+         <value>1:32768</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="WDT" registerAlias="WDTCON" settingAlias="WDTSEN"/>
@@ -4734,7 +4734,7 @@
       </entry>
       <entry>
          <file>mcc_generated_files/device_config.c</file>
-         <hash>34616acc018039be8649393c0929f221da2d75599fc415869e29ceac6fcf34c8</hash>
+         <hash>99837d69424766687ec89548d2f7879c6b249bd183e3fe037584395acd2c5eef</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/device_config.h</file>
@@ -4766,7 +4766,7 @@
       </entry>
       <entry>
          <file>mcc_generated_files/mcc.c</file>
-         <hash>bfdcc651b696d0cd4708a9e5b26b135c2aa29996c613302be945247a7c4415dc</hash>
+         <hash>589dcbeb6f48b90d02362e828f75d1b1e76c82fc54ae25f1457a013f841648b3</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/mcc.h</file>
