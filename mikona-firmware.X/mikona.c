@@ -11,6 +11,10 @@
 #define DISCHARGE_MIN_DROP_V   5u
 #define KICK_CHECK_MS          50u
 #define KICK_MIN_DROP_V        10u
+#define KICK_PWM_PERIOD_COUNTS 1000u
+#define KICK_MAX_DUTY_COUNTS   (KICK_PWM_PERIOD_COUNTS - 1u)
+#define KICK_PWM_STEP_US       16u
+#define KICK_MAX_PULSE_US      (KICK_MAX_DUTY_COUNTS * KICK_PWM_STEP_US)
 
 typedef enum
 {
@@ -41,6 +45,29 @@ static volatile uint16_t g_kick_start_ms     = 0;
 static volatile uint8_t  g_kick_start_v      = 0;
 
 #define KICK_MIN_START_V       (KICK_MIN_DROP_V * 2u)  // skip check if caps were below this at kick time
+
+static uint16_t kick_duration_us_to_duty_counts(uint16_t duration_us)
+{
+    uint16_t duty_counts;
+
+    if (duration_us == 0u)
+    {
+        return 0u;
+    }
+
+    if (duration_us > KICK_MAX_PULSE_US)
+    {
+        duration_us = KICK_MAX_PULSE_US;
+    }
+
+    duty_counts = duration_us / KICK_PWM_STEP_US;
+    if ((duration_us % KICK_PWM_STEP_US) != 0u)
+    {
+        duty_counts++;
+    }
+
+    return duty_counts;
+}
 
 void set_led_color(enum led_color_t color)
 {
@@ -101,16 +128,16 @@ static void setDischarge(bool enable)
 
 void setKickA(uint16_t duration)
 {
-    if (duration == 0)
-        return;
+    uint16_t duty_counts = kick_duration_us_to_duty_counts(duration);
 
-    duration = duration >> 1;
+    if (duty_counts == 0u)
+        return;
 
     RC3_SetDigitalInput();
     PWM4_LoadDutyValue(0);
 
     RC2_SetDigitalOutput();
-    PWM3_LoadDutyValue(duration+2);
+    PWM3_LoadDutyValue(duty_counts);
 
     g_kick_pending   = true;
     g_kick_fault_bit = REG_FAULT_KICK_A_NO_DROP_BIT;
@@ -127,16 +154,16 @@ void setKickA(uint16_t duration)
 
 void setKickB(uint16_t duration)
 {
-    if (duration == 0)
-        return;
+    uint16_t duty_counts = kick_duration_us_to_duty_counts(duration);
 
-    duration = duration >> 1;
+    if (duty_counts == 0u)
+        return;
 
     RC2_SetDigitalInput();
     PWM3_LoadDutyValue(0);
 
     RC3_SetDigitalOutput();
-    PWM4_LoadDutyValue(duration+2);
+    PWM4_LoadDutyValue(duty_counts);
 
     g_kick_pending   = true;
     g_kick_fault_bit = REG_FAULT_KICK_B_NO_DROP_BIT;
