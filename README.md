@@ -44,12 +44,13 @@ Bit:  7  6  5  4  |  3   |  2  |    1    |   0
 The firmware maintains capacitor charge automatically:
 
 1. Master sets `CHARGE=1` to begin the first charge cycle.
-2. Once the IC signals done, the firmware records the peak voltage.
+2. During each charge cycle, the firmware tracks the highest measured voltage and records that peak once the IC signals done.
 3. If voltage drops more than 10V below the learned peak, a new charge cycle is triggered automatically — no action required from the master.
 4. `DONE=1` means the capacitors are charged to near-peak voltage; `DONE=0` means a charge cycle is in progress.
 5. Set `CHARGE=0` to stop charging entirely.
 
-The learned peak voltage is the median of the last 5 charge-done readings, providing noise rejection.
+The learned peak voltage is the median of the last 5 per-cycle peak readings, providing noise rejection while ignoring transient low samples on the charge-done edge.
+As a fail-safe, if measured voltage drops below `50V`, the firmware discards the learned peak history, forces `DONE=0`, and if `CHARGE=1`, resumes charging immediately so the next full cycle relearns the peak from scratch.
 
 #### Invalid command combinations
 

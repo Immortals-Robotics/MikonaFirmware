@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #define RECHARGE_THRESHOLD_V   10u
+#define FORCE_RECHARGE_BELOW_V 50u
 #define MAX_VOLTAGE_SAMPLES    5u
 #define CHARGE_TIMEOUT_MS      5000u
 #define DISCHARGE_CHECK_MS     1000u
@@ -30,6 +31,7 @@ static volatile uint16_t g_time_ms = 0;
 
 static volatile charge_state_t g_charge_state = CS_IDLE;
 static volatile uint16_t g_charge_start_ms = 0;
+static volatile uint8_t g_charge_cycle_peak = 0;
 
 static volatile uint8_t g_max_voltage = 0;
 static volatile uint8_t g_max_voltage_samples[MAX_VOLTAGE_SAMPLES];
@@ -203,6 +205,21 @@ static void update_max_voltage(uint8_t v)
     g_max_voltage = sorted[g_max_voltage_count / 2];
 }
 
+static void reset_max_voltage_learning(void)
+{
+    g_max_voltage = 0;
+    g_max_voltage_count = 0;
+    g_max_voltage_idx = 0;
+}
+
+static void start_charge_cycle(void)
+{
+    g_charge_start_ms = g_time_ms;
+    g_charge_cycle_peak = g_registers.v_out;
+    g_charge_state = CS_CHARGING;
+    setCharge(true);
+}
+
 static void tmr0_interrupt_handler(void)
 {
     g_time_ms += 10u;
@@ -212,6 +229,12 @@ static void tmr0_interrupt_handler(void)
 static void adc_interrupt_handler(void)
 {
     g_registers.v_out = get_v_out();
+
+    if ((g_charge_state == CS_CHARGING || g_charge_state == CS_KICK_INHIBIT) &&
+        g_registers.v_out > g_charge_cycle_peak)
+    {
+        g_charge_cycle_peak = g_registers.v_out;
+    }
 
     // Charge timeout fault: IC never pulled DONE low within the allowed window.
     if (g_charge_state == CS_CHARGING &&
@@ -255,13 +278,22 @@ static void adc_interrupt_handler(void)
         }
         if (g_charge_state == CS_KICK_INHIBIT)
         {
-            g_charge_start_ms = g_time_ms;
-            g_charge_state = CS_CHARGING;
-            setCharge(true);
+            start_charge_cycle();
         }
     }
 
-    if (g_max_voltage > 0)
+    if (g_registers.v_out < FORCE_RECHARGE_BELOW_V)
+    {
+        reset_max_voltage_learning();
+        REG_SET_BIT(REG_STATUS_DONE_BIT, 0);
+
+        if (REG_GET_BIT(REG_STATUS_CHARGE_BIT) && g_charge_state == CS_CHARGED)
+        {
+            // Below the failsafe floor, ignore the learned peak and resume charging.
+            start_charge_cycle();
+        }
+    }
+    else if (g_max_voltage > 0)
     {
         uint8_t threshold = g_max_voltage > RECHARGE_THRESHOLD_V
                           ? g_max_voltage - RECHARGE_THRESHOLD_V
@@ -274,9 +306,7 @@ static void adc_interrupt_handler(void)
         {
             // IC is already in reset (done_ioc pulled CHARGE low when it finished).
             // Start a new charge cycle directly.
-            g_charge_start_ms = g_time_ms;
-            g_charge_state = CS_CHARGING;
-            setCharge(true);
+            start_charge_cycle();
         }
     }
 }
@@ -286,7 +316,11 @@ static void done_ioc_handler(void)
     if (is_done())
     {
         // DONE pin went low: IC finished a charge cycle.
-        update_max_voltage(g_registers.v_out);
+        if (g_registers.v_out > g_charge_cycle_peak)
+        {
+            g_charge_cycle_peak = g_registers.v_out;
+        }
+        update_max_voltage(g_charge_cycle_peak);
         g_charge_state = CS_CHARGED;
         setCharge(false);  // reset IC immediately; recharge will re-arm directly when needed
     }
@@ -299,9 +333,7 @@ void on_charge_requested(bool enable)
     {
         if (g_charge_state == CS_IDLE)
         {
-            g_charge_start_ms = g_time_ms;
-            setCharge(true);
-            g_charge_state = CS_CHARGING;
+            start_charge_cycle();
         }
     }
     else
