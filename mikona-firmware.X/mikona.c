@@ -57,11 +57,6 @@ static uint16_t kick_duration_us_to_duty_counts(uint16_t duration_us)
         return 0u;
     }
 
-    if (duration_us > KICK_MAX_PULSE_US)
-    {
-        duration_us = KICK_MAX_PULSE_US;
-    }
-
     duty_counts = duration_us / KICK_PWM_STEP_US;
     if ((duration_us % KICK_PWM_STEP_US) != 0u)
     {
@@ -130,6 +125,12 @@ static void setDischarge(bool enable)
 
 void setKickA(uint16_t duration)
 {
+    if (duration > KICK_MAX_PULSE_US)
+    {
+        set_fault(REG_FAULT_INVALID_CMD_BIT);
+        return;
+    }
+
     uint16_t duty_counts = kick_duration_us_to_duty_counts(duration);
 
     if (duty_counts == 0u)
@@ -156,6 +157,12 @@ void setKickA(uint16_t duration)
 
 void setKickB(uint16_t duration)
 {
+    if (duration > KICK_MAX_PULSE_US)
+    {
+        set_fault(REG_FAULT_INVALID_CMD_BIT);
+        return;
+    }
+
     uint16_t duty_counts = kick_duration_us_to_duty_counts(duration);
 
     if (duty_counts == 0u)
