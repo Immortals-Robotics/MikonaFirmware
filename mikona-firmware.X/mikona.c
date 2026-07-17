@@ -91,8 +91,11 @@ bool is_done(void)
 uint8_t get_v_out(void)
 {
     uint16_t adc_raw = ADC_GetConversionResult();
-    // V_actual = adc * (4.096 * 101 / 1023)
-    // TODO: figure out why a 1.25 factor was needed in the divider
+    // V_actual = adc * (4.096 * 101 / 1023), divided by an empirical 1.25.
+    // Readings with this factor verified correct against a meter.
+    // TODO: figure out why the 1.25 is needed — per the schematic it
+    // shouldn't be. Suspect: if VDD is 3.3V, the 4.096V FVR setting is out
+    // of spec and clips to ~VDD (4.096 / 1.25 = 3.277 ≈ a 3.3V rail).
     uint32_t v = ((uint32_t)adc_raw * 404u) / 1250u;
     return (uint8_t)(v > 255u ? 255u : v);
 }
