@@ -52,7 +52,10 @@ static void i2c_read_callback(void)
         }
         else if (g_internal.reg_id == REG_ADDR_KICK_A)
         {
-            g_registers.kick_a.u8[array_idx] = read_data;
+            if (array_idx < sizeof(g_registers.kick_a.u8))
+            {
+                g_registers.kick_a.u8[array_idx] = read_data;
+            }
 
             if (array_idx == 1)
             {
@@ -69,7 +72,10 @@ static void i2c_read_callback(void)
         }
         else if (g_internal.reg_id == REG_ADDR_KICK_B)
         {
-            g_registers.kick_b.u8[array_idx] = read_data;
+            if (array_idx < sizeof(g_registers.kick_b.u8))
+            {
+                g_registers.kick_b.u8[array_idx] = read_data;
+            }
 
             if (array_idx == 1)
             {
