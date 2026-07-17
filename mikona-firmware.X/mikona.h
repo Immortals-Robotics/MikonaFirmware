@@ -18,7 +18,7 @@ void set_led_color(enum led_color_t color);
 void set_fault(uint8_t fault_bit);
 
 bool is_done(void);
-// Returns voltage in volts, scaled to fit in uint8_t (0-255 = 0-4.096V)
+// Returns capacitor voltage in volts (1V per LSB), saturating at 255.
 uint8_t get_v_out(void);
 
 void on_charge_requested(bool enable);
