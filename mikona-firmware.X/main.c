@@ -15,9 +15,11 @@ int main(void)
     setup_done_ioc();
     set_led_color(LedColorGreen);
 
+    // Never SLEEP here: this part has no idle mode, so sleep stops FOSC and
+    // freezes TMR0/TMR2 — including the PWM one-shot mid-kick-pulse.
     while (1)
     {
-        SLEEP();
+        CLRWDT();
     }
 
     shutdown_i2c();

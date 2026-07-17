@@ -223,7 +223,6 @@ static void start_charge_cycle(void)
 static void tmr0_interrupt_handler(void)
 {
     g_time_ms += 10u;
-    CLRWDT();
 }
 
 static void adc_interrupt_handler(void)
